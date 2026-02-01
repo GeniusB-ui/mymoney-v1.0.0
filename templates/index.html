@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าแรก - ระบบบันทึกรายรับ-รายจ่าย</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-content">
+            <h1>🏦 ระบบบันทึกรายรับ-รายจ่าย</h1>
+            <div class="nav-user">
+                <span>สวัสดี, {{ session.fullname }}</span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">ออกจากระบบ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="{{ url_for('index') }}" class="menu-item active">📊 หน้าแรก</a>
+            <a href="{{ url_for('add') }}" class="menu-item">➕ เพิ่มรายการ</a>
+            <a href="{{ url_for('list_transactions') }}" class="menu-item">📋 รายการทั้งหมด</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>สรุปภาพรวมการเงิน</h2>
+
+        <div class="summary-grid">
+            <div class="summary-card income">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>รายรับทั้งหมด</h3>
+                    <p class="amount">{{ "{:,.2f}".format(income) }} บาท</p>
+                </div>
+            </div>
+
+            <div class="summary-card expense">
+                <div class="card-icon">💸</div>
+                <div class="card-content">
+                    <h3>รายจ่ายทั้งหมด</h3>
+                    <p class="amount">{{ "{:,.2f}".format(expense) }} บาท</p>
+                </div>
+            </div>
+
+            <div class="summary-card balance {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                <div class="card-icon">💵</div>
+                <div class="card-content">
+                    <h3>ยอดคงเหลือ</h3>
+                    <p class="amount">{{ "{:,.2f}".format(balance) }} บาท</p>
+                </div>
+            </div>
+
+            <div class="summary-card info">
+                <div class="card-icon">📝</div>
+                <div class="card-content">
+                    <h3>จำนวนรายการ</h3>
+                    <p class="amount">{{ total_count }} รายการ</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>รายการล่าสุด</h2>
+
+        {% if recent %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>วันที่</th>
+                        <th>ประเภท</th>
+                        <th>หมวดหมู่</th>
+                        <th>รายละเอียด</th>
+                        <th>จำนวนเงิน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in recent %}
+                    <tr>
+                        <td>{{ t.transaction_date }}</td>
+                        <td>
+                            {% if t.type == 'income' %}
+                                <span class="badge badge-income">รายรับ</span>
+                            {% else %}
+                                <span class="badge badge-expense">รายจ่าย</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.description }}</td>
+                        <td class="amount {% if t.type == 'income' %}income-amount{% else %}expense-amount{% endif %}">
+                            {% if t.type == 'income' %}+{% else %}-{% endif %}{{ "{:,.2f}".format(t.amount) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('list_transactions') }}" class="btn btn-secondary">ดูรายการทั้งหมด</a>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>ยังไม่มีรายการ</p>
+            <a href="{{ url_for('add') }}" class="btn btn-primary">เพิ่มรายการแรก</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

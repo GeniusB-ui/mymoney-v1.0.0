@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการทั้งหมด - ระบบบันทึกรายรับ-รายจ่าย</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-content">
+            <h1>🏦 ระบบบันทึกรายรับ-รายจ่าย</h1>
+            <div class="nav-user">
+                <span>สวัสดี, {{ session.fullname }}</span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">ออกจากระบบ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="{{ url_for('index') }}" class="menu-item">📊 หน้าแรก</a>
+            <a href="{{ url_for('add') }}" class="menu-item">➕ เพิ่มรายการ</a>
+            <a href="{{ url_for('list_transactions') }}" class="menu-item active">📋 รายการทั้งหมด</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="list-header">
+            <h2>📋 รายการทั้งหมด</h2>
+            <div class="filter-buttons">
+                <a href="{{ url_for('list_transactions', type='all') }}" 
+                   class="btn-filter {% if filter_type == 'all' %}active{% endif %}">
+                    ทั้งหมด
+                </a>
+                <a href="{{ url_for('list_transactions', type='income') }}" 
+                   class="btn-filter income {% if filter_type == 'income' %}active{% endif %}">
+                    รายรับ
+                </a>
+                <a href="{{ url_for('list_transactions', type='expense') }}" 
+                   class="btn-filter expense {% if filter_type == 'expense' %}active{% endif %}">
+                    รายจ่าย
+                </a>
+            </div>
+        </div>
+
+        {% if transactions %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>วันที่</th>
+                        <th>ประเภท</th>
+                        <th>หมวดหมู่</th>
+                        <th>รายละเอียด</th>
+                        <th>จำนวนเงิน</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.transaction_date }}</td>
+                        <td>
+                            {% if t.type == 'income' %}
+                                <span class="badge badge-income">รายรับ</span>
+                            {% else %}
+                                <span class="badge badge-expense">รายจ่าย</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.description if t.description else '-' }}</td>
+                        <td class="amount {% if t.type == 'income' %}income-amount{% else %}expense-amount{% endif %}">
+                            {% if t.type == 'income' %}+{% else %}-{% endif %}{{ "{:,.2f}".format(t.amount) }}
+                        </td>
+                        <td class="action-buttons">
+                            <a href="{{ url_for('edit', id=t.id) }}" class="btn-action btn-edit" title="แก้ไข">✏️</a>
+                            <a href="{{ url_for('delete', id=t.id) }}" class="btn-action btn-delete" 
+                               onclick="return confirm('ยืนยันการลบรายการนี้?')" title="ลบ">🗑️</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-footer">
+            <p>จำนวนรายการทั้งหมด: <strong>{{ transactions|length }}</strong> รายการ</p>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>ไม่พบรายการ
+                {% if filter_type == 'income' %}
+                    รายรับ
+                {% elif filter_type == 'expense' %}
+                    รายจ่าย
+                {% endif %}
+            </p>
+            <a href="{{ url_for('add') }}" class="btn btn-primary">เพิ่มรายการใหม่</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

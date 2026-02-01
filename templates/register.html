@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก - ระบบบันทึกรายรับ-รายจ่าย</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>🏦 ระบบบันทึกรายรับ-รายจ่าย</h1>
+            <h2>สมัครสมาชิก</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label for="fullname">ชื่อ-นามสกุล</label>
+                    <input type="text" id="fullname" name="fullname" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" name="username" required>
+                    <small>ใช้สำหรับเข้าสู่ระบบ (ตัวอักษรภาษาอังกฤษและตัวเลข)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" name="password" required minlength="4">
+                    <small>ความยาวอย่างน้อย 4 ตัวอักษร</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+            </form>
+            
+            <div class="register-link">
+                <p>มีบัญชีอยู่แล้ว? <a href="{{ url_for('login') }}">เข้าสู่ระบบ</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
